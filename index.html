@@ -76,6 +76,19 @@
   .card a.link { margin-top: 14px; font: 13px "JetBrains Mono", monospace; color: var(--accent); text-decoration: none; }
   .card a.link:hover { text-decoration: underline; }
 
+  .featured { display: grid; grid-template-columns: 1.15fr 1fr; background: var(--panel); box-shadow: 0 0 0 1px rgba(255,255,255,.07); margin-bottom: 16px; transition: box-shadow .15s; }
+  .featured:hover { box-shadow: 0 0 0 1px var(--accent); }
+  .featured .shot { display: block; min-height: 100%; }
+  .featured img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .featured .info { padding: 26px; display: flex; flex-direction: column; }
+  .featured .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .featured .cat { font-size: 12px; color: var(--cyan); }
+  .featured h3 { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -.015em; line-height: 1.2; margin-bottom: 10px; }
+  .featured p { color: var(--muted); font-size: 15px; }
+  .featured .stat { font-size: 12px; color: var(--text2); margin-top: 14px; }
+  .featured .btns { margin-top: 20px; }
+  @media (max-width: 760px) { .featured { grid-template-columns: 1fr; } }
+
   .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
   .tags span { background: var(--panel2); padding: 4px 12px; font: 13px "JetBrains Mono", monospace; color: var(--text2); }
 
@@ -135,6 +148,19 @@
     <div class="wrap">
       <h2>Work</h2>
       <p class="sub">Things I've built, broken, and figured out.</p>
+      <article class="featured">
+        <a class="shot" href="https://school-user.github.io/robotics-simulation/"><img src="images/byte-to-bite.jpg" alt="Byte to Bite: 3D robot on the BEST Robotics competition field" width="1280" height="600" loading="lazy"></a>
+        <div class="info">
+          <div class="top"><span class="cat mono">Robotics · Featured</span><span class="status live mono">Live</span></div>
+          <h3>Byte to Bite: BEST Robotics Simulator</h3>
+          <p>A 3D browser game that recreates the 2026 BEST Robotics "Byte to Bite" field, so our team can practice driving and strategy before the real robot is built. Pick up plates and cups and deliver them before the 2-minute clock runs out. It runs right in the browser, and you can even drive it with a real VEX EXP controller.</p>
+          <p class="stat mono">Three.js · JavaScript · VEX EXP</p>
+          <div class="btns">
+            <a class="btn primary" href="https://school-user.github.io/robotics-simulation/">▶ Play it</a>
+            <a class="btn" href="https://github.com/School-User/robotics-simulation">Source ↗</a>
+          </div>
+        </div>
+      </article>
       <div class="grid">
 
         <article class="card">
@@ -186,12 +212,6 @@
           <p class="stat mono">Windows · Linux · Hardening</p>
         </article>
 
-        <article class="card">
-          <div class="top"><span class="cat mono">Robotics</span><span class="status live mono">Live</span></div>
-          <h3>Byte to Bite</h3>
-          <p>A 3D browser game that simulates our BEST Robotics robot and field, so the team can practice driving before the real robot is built.</p>
-          <a class="link" href="https://github.com/School-User/robotics-simulation">View on GitHub →</a>
-        </article>
 
         <article class="card">
           <div class="top"><span class="cat mono">Open Source</span><span class="status done mono">Submitted</span></div>
