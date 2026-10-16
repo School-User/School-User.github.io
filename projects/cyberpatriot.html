@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberPatriot — Siddh Patel</title>
+<meta name="description" content="Competing in the national youth cyber defense competition: finding and fixing vulnerabilities on Windows and Linux systems against the clock.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#9ece6a"/><stop offset="1" stop-color="#7dcfff"/></linearGradient></defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav><a href="../index.html#work">Work</a><a href="../index.html#about">About</a><a href="../index.html#contact">Contact</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Cyber Defense</span>
+      <h1>CyberPatriot</h1>
+      <p class="dek">The national youth cyber defense competition: given a deliberately misconfigured Windows or Linux image, find and fix as many real vulnerabilities as possible before the clock runs out — without breaking the services that are supposed to keep running.</p>
+      <div class="tags">
+        <span>Windows Hardening</span><span>Linux Hardening</span><span>Forensics</span><span>Team Competition</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>What the competition actually asks</h2>
+      <p>CyberPatriot rounds hand teams a set of virtual machine images that look like real, in-use systems — except they've been deliberately broken: weak or shared passwords, unnecessary services left open, missing patches, malicious scheduled tasks and startup items, backdoor user accounts, misconfigured firewall rules. The job is to find and fix as many of those issues as possible inside a fixed time window, scored automatically as changes are made, while specific "critical services" (things like a web server or file share the scenario says must keep running) have to stay up the whole time. Breaking a required service costs points just like missing a vulnerability does — hardening too aggressively is its own failure mode.</p>
+      <p>Rounds also include short answer forensics questions worked into the same scenario — things like identifying a suspicious log entry or explaining why a particular configuration is dangerous — so it's not purely mechanical checklist work.</p>
+
+      <h2>What that actually trains</h2>
+      <p>Compared to a lot of security learning that happens in isolated labs, CyberPatriot's format forces a specific discipline: work fast, verify every change against the live scoring feedback instead of assuming a fix landed, and keep required services running the whole time. That maps closely to real defensive security work, where "did my hardening change actually break production" is as important a question as "did it fix the vulnerability."</p>
+
+      <h2>Where it connects to the rest of what I build</h2>
+      <p>A lot of my other projects are the opposite motion — reverse-engineering and getting into systems rather than locking them down. CyberPatriot is the complementary skill: understanding a system well enough to see where it's weak, from the defender's side instead of the attacker's.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><span>© 2026 Siddh Patel</span><a href="https://github.com/School-User">github.com/School-User</a></div>
+</footer>
+</body>
+</html>

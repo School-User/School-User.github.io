@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux on a Kindle Fire — Siddh Patel</title>
+<meta name="description" content="Unlocking a locked-down Kindle Fire 7 at the bootrom level and bringing up an abandoned, archived Linux port into a fully working touchscreen desktop.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#9ece6a"/><stop offset="1" stop-color="#7dcfff"/></linearGradient></defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav><a href="../index.html#work">Work</a><a href="../index.html#about">About</a><a href="../index.html#contact">Contact</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Hardware Hacking</span>
+      <h1>Linux on a Kindle Fire</h1>
+      <p class="dek">A $40 Kindle Fire 7's bootloader is locked and its Linux port had been abandoned for months. Getting a real, working desktop onto it meant a hardware-level unlock and fixing three separate kernel bugs that nobody had finished fixing.</p>
+      <div class="tags">
+        <span>postmarketOS</span><span>Kernel Hacking</span><span>Bootrom Exploit</span><span>ARM / MediaTek</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>Unlocking it at the chip level</h2>
+      <p>Amazon locks the Fire 7's bootloader, and this particular unit's firmware didn't offer any software unlock path. The actual way in was physical: opening the case, disconnecting the battery, and briefly shorting a specific test point on the board while powering it on, to force the SoC into its lowest-level bootrom mode before any locked firmware gets a chance to run. On an early-production board like this one, that bootrom is reachable at all — later production runs patched this exact path closed. It took roughly a dozen attempts to land the short correctly; a near-miss looks identical to a hardware-locked failure unless you know what a true bootrom response looks like, which is itself worth knowing before writing a board off as unrecoverable.</p>
+      <p>With bootrom access confirmed, an existing open-source unlock tool for this chip family (originally for a different-but-related device, not officially supported for this one) was able to talk to it directly over USB and unlock the bootloader for real — no patched kernel or special boot environment needed, contrary to what its own documentation implied.</p>
+
+      <h2>Reviving an abandoned port</h2>
+      <p>With the bootloader unlocked, the plan was postmarketOS — a real Linux distribution built for phones and tablets. The problem: this device's postmarketOS port had been officially archived, unmaintained for months, because nobody had kept it working. It built without errors, but "builds" and "boots to a usable desktop" turned out to be very different bars.</p>
+
+      <h2>Bug #1: a screen with no visible text</h2>
+      <p>The first boot produced... nothing. Not a crash — the display pipeline was demonstrably working (test writes to the framebuffer showed up on the panel), but console text and UI never appeared. The actual cause was a one-character-class bug in the kernel's framebuffer color-palette code: a bit-shift calculation overflowed for 32-bit color depth, so every single palette color request silently got rejected and the system fell back to a palette of pure black — text was being drawn, in black, on a black background, with no error reported anywhere. A small kernel patch fixing the shift math (and correcting how the color channels are packed) made the display actually show what was being drawn to it.</p>
+
+      <h2>Bug #2: USB networking that technically existed but didn't</h2>
+      <p>Early on, the only way to debug the tablet at all was over a USB network link — but the stock kernel config had the old-style USB gadget driver enabled, which claims the hardware controller first, so the modern networking gadget stack never got a chance to bind to it. Reconfiguring the kernel to disable the legacy driver and enable the correct modern gadget stack unlocked real two-way networking over the same USB cable used to debug everything else.</p>
+
+      <h2>Bug #3: WiFi that could see networks but never connect</h2>
+      <p>WiFi scanning worked — the tablet could see every nearby network — but every connection attempt failed silently at the authentication step. Packet-level logging on the WiFi driver showed the real cause: the OS's default privacy setting randomizes a device's network address for each connection attempt, which is good practice on modern hardware — except this particular WiFi chip hard-codes its real factory address at the radio level and will only acknowledge authentication frames sent to that exact address. Every "randomized" connection attempt was being silently ignored by the chip itself. Pinning the network interface to its real hardware address instead of letting it randomize fixed authentication immediately.</p>
+
+      <div class="callout">Across all three bugs, the pattern was the same: the system failed silently, with no error message pointing at the real cause. Framebuffer writes "succeeded." USB gadgets "existed." WiFi authentication just "didn't happen." Diagnosing each one meant going a layer below the obvious symptom — reading raw palette math, checking which kernel driver actually owns a shared piece of hardware, and watching real radio frames instead of trusting the higher-level connection status.</div>
+
+      <h2>The result</h2>
+      <p>A $40 e-reader-grade tablet now boots a full XFCE desktop with working touchscreen, Wi-Fi, and an on-screen keyboard — auto-connecting to known networks on every boot, same as any normal Linux laptop. Audio and Bluetooth stayed off by choice: getting them working would have meant chasing at least one more kernel-level landmine for features that weren't actually needed for the device's new job.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><span>© 2026 Siddh Patel</span><a href="https://github.com/School-User">github.com/School-User</a></div>
+</footer>
+</body>
+</html>

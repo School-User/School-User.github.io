@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-Hosted AI Agents — Siddh Patel</title>
+<meta name="description" content="24/7 AI agents running on my own Proxmox server, reachable over Telegram, doing scheduled research and news tasks on local models.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#9ece6a"/><stop offset="1" stop-color="#7dcfff"/></linearGradient></defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav><a href="../index.html#work">Work</a><a href="../index.html#about">About</a><a href="../index.html#contact">Contact</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Local AI</span>
+      <h1>Self-Hosted AI Agents</h1>
+      <p class="dek">An AI agent that runs 24/7 on my own hardware, reachable over Telegram and email, doing scheduled research so nothing about it leaves my network.</p>
+      <div class="tags">
+        <span>Proxmox</span><span>systemd</span><span>Telegram</span><span>Ollama</span><span>Cron</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>Why self-host an agent</h2>
+      <p>I run an always-on AI agent in a dedicated VM on my home Proxmox server instead of using a hosted service, mainly so it can run scheduled, somewhat personal tasks — daily research digests, reminders — using a local model, with nothing about those requests leaving my own network. It's reachable over Telegram and a dedicated email address, and runs two standing jobs: a daily internship search and a daily AI/cybersecurity news digest, both deduplicated against what it's already sent me so I don't get repeats.</p>
+
+      <h2>Only one instance can poll the bot</h2>
+      <p>Telegram bots only allow a single process to long-poll for updates at a time. I'd originally run the agent on my laptop; moving it to the always-on VM meant explicitly stopping and disabling the laptop's copy of the gateway first — otherwise both instances fight over the same bot token and messages get dropped or duplicated.</p>
+
+      <h2>The timezone bug that fired a 2am alert</h2>
+      <p>The VM came up with its clock on UTC by default. An 8:00am daily cron job silently became a 2:00am job in my actual timezone — the kind of bug that's invisible until you happen to be awake at 2am and your phone buzzes. Fixed by setting the VM's timezone explicitly rather than assuming cron's "daily at 8" means what you think it means.</p>
+
+      <h2>Search engines don't like being automated</h2>
+      <p>The agent's web search initially went through a self-hosted SearXNG instance, which worked until it didn't — most of the backing search engines started CAPTCHA-walling or rate-limiting requests coming from my home IP, and the one that didn't was returning results so stale they included Titanic-era search hits for current-events queries. Switched the agent's search backend to a keyless API instead, which trades away a bit of self-hosted purity for actually working reliably.</p>
+
+      <div class="callout">Smaller gotcha worth remembering: the agent's own packaged browser tooling installs Chrome somewhere its own detection logic doesn't check, so browser-based tools silently disabled themselves with no error — fixed with one explicit environment variable pointing at the real binary path. The lesson: "silently disabled" bugs in agent tooling are worth checking for explicitly, since they don't throw anything to debug.</div>
+
+      <h2>What it actually does</h2>
+      <ul>
+        <li>Daily internship search, results deduplicated against a running log so I only see new postings</li>
+        <li>Daily AI + cybersecurity news digest delivered to Telegram</li>
+        <li>Reachable for ad-hoc requests over Telegram and a dedicated email inbox, with a strict allowlist of senders it will actually act on</li>
+        <li>Runs on a local Ollama model, so conversation content stays on my own hardware</li>
+      </ul>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><span>© 2026 Siddh Patel</span><a href="https://github.com/School-User">github.com/School-User</a></div>
+</footer>
+</body>
+</html>
