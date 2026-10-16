@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dual-GPU AI Server — Siddh Patel</title>
+<meta name="description" content="Pooling an NVIDIA RTX 3070 Ti and an AMD RX 6700 XT through Vulkan to run one large language model across both GPUs.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Local AI</span>
+      <h1>Dual-GPU AI Server</h1>
+      <p class="dek">Pooling an NVIDIA RTX 3070 Ti and an AMD RX 6700 XT — two GPUs from rival vendors — through Vulkan, so one large language model runs split across both at once.</p>
+      <div class="tags">
+        <span>Ollama</span><span>Vulkan</span><span>llama.cpp</span><span>Linux</span><span>systemd</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>The problem</h2>
+      <p>My AI box started with one GPU, an RTX 3070 Ti with 8GB of VRAM — enough for small-to-mid local models, but anything in the 20B+ range either wouldn't fit or spilled most of itself into system RAM, which tanks speed. I added a second card, an AMD RX 6700 XT with 12GB, to get more VRAM headroom.</p>
+      <p>The catch: Ollama can see both cards fine on their own — NVIDIA through CUDA, AMD through Vulkan — but by default a single model load only uses <em>one</em> backend at a time. Setting the obvious-looking <code>OLLAMA_SCHED_SPREAD=1</code> flag doesn't fix this on its own; it only spreads a model across multiple GPUs that are already on the <em>same</em> backend. A 30B model still spilled most of its weight to slow CPU RAM instead of using the free VRAM sitting on the other card.</p>
+
+      <h2>The fix</h2>
+      <p>The trick was forcing both GPUs onto the same backend so llama.cpp's Vulkan multi-device support could split one model's layers across both of them. A systemd override on the Ollama service does it:</p>
+      <pre><code>Environment=OLLAMA_SCHED_SPREAD=1
+Environment=CUDA_VISIBLE_DEVICES=</code></pre>
+      <p>Setting <code>CUDA_VISIBLE_DEVICES</code> to empty hides the RTX 3070 Ti from the CUDA backend entirely, so it only shows up via Vulkan — same backend as the AMD card, same pool. That gets a combined ~20GB of VRAM that llama.cpp can split a single model across, instead of two separate 8GB/12GB pools.</p>
+
+      <div class="callout">The tradeoff: every model now runs through Vulkan instead of the 3070 Ti's native CUDA path, which costs a modest amount of per-token speed on small models that would've fit on one card anyway. I took that tradeoff on purpose — getting 30B+ models mostly on-GPU mattered more to me than peak speed on models that were already fast.</div>
+
+      <h2>Results</h2>
+      <p>Before: a 19GB 30B model ran 61% GPU / 39% CPU on the AMD card alone. After the Vulkan pool, the same model loads ~97% GPU / 3% CPU, split roughly 18 layers on the 3070 Ti and 31 layers on the 6700 XT.</p>
+      <p>Current benchmarks across both cards (300-token generations):</p>
+      <ul>
+        <li><strong>gemma4:26b-a4b-it-qat</strong> — 34 tok/s, 96% GPU</li>
+        <li><strong>qwen3-30b-abliterated</strong> — 51 tok/s, 98% GPU</li>
+        <li><strong>qwen3-coder-abliterated (iq3, 32k ctx)</strong> — 45 tok/s, 100% GPU</li>
+      </ul>
+
+      <h2>What I'd watch for</h2>
+      <p>The one gotcha that cost real debugging time: an occasional bad split traced back to <em>low system RAM</em>, not the Vulkan config itself. When free RAM gets tight, Ollama's scheduler gets conservative and can degrade to a worse CPU-staged split that looks identical to a broken GPU config. The fix wasn't touching the Vulkan setup at all — it was freeing up system RAM (in my case, removing an idle service that was quietly eating 15GB). Lesson: before debugging a GPU-split problem, check free system RAM first.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>

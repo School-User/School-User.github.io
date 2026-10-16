@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyboard Firmware Dump — Siddh Patel</title>
+<meta name="description" content="Dumping, backing up, and mapping the keymap table of a SinoWealth-based mechanical keyboard that QMK and every existing flashing tool refuse to touch.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Reverse Engineering</span>
+      <h1>Keyboard Firmware Dump</h1>
+      <p class="dek">My mechanical keyboard runs a chip too old for QMK and too obscure for any existing flashing tool. Getting at its firmware meant going around both problems.</p>
+      <div class="tags">
+        <span>SinoWealth SH68F90</span><span>sinowisp</span><span>Rust</span><span>Windows VM passthrough</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>The chip nobody supports</h2>
+      <p>My keyboard runs a SinoWealth SH68F90 — an 8051-family microcontroller. QMK, the open-source firmware most hobbyists reach for, simply can't run on 8051 hardware. The usual community flashing tools (SMK, sinowealth-kb-tool) don't list this chip either. So before any custom firmware work could start, I needed two separate things: a way to update the stock firmware, and a way to read it back out.</p>
+
+      <h2>Updating official firmware, the hard way</h2>
+      <p>The vendor's official updater is Windows-only, and the keyboard's bootloader re-enumerates as a different USB device ID when it drops into ISP (in-system programming) mode. To make that work from Linux, I passed the keyboard through to a Windows VM at the <em>USB port</em> level (not a static device ID), so the bootloader's re-enumeration follows the device into the VM instead of breaking the passthrough. A temporary udev rule opened permissions on the new device node for the handoff, then got removed again afterward.</p>
+      <p>Smaller annoyance along the way: typing into the VM over QMP was silently dropping every <code>p</code> character, and PowerShell refused to run at all ("cannot access the specified device"). Worked around it by using <code>cmd</code> with a one-line <code>curl</code> to a locally served batch file — a command that happens to contain no <code>p</code>.</p>
+
+      <h2>Reading the firmware back out</h2>
+      <p>For actually dumping and inspecting the firmware, I used <code>sinowisp</code>, a Rust tool that happens to support this exact chip family. It reboots the keyboard into ISP mode and back automatically:</p>
+      <pre><code>sinowisp read -p sh68f90 --vendor_id 0x12c9 --product_id 0x6001 --format bin out.bin</code></pre>
+      <p>That gave a clean 61,440-byte dump with the bootloader itself untouched, which I kept as a verified backup — important, since this is the only known-good copy of the stock firmware for this board.</p>
+
+      <h2>Mapping the keymap</h2>
+      <p>With a firmware dump in hand, I located the keymap table by inspecting the binary directly: plain HID usage codes, laid out column-major across 6 rows per column, with the base layer starting around offset <code>0x67fa</code> and an Fn layer around <code>0x6878</code>. That table is the actual target for future remaps — modifier key handling isn't in it yet, which is the next thing to work out.</p>
+
+      <div class="callout">This backup already paid off once: the keyboard started "acting weird" later on, and I was able to restore it to exactly-stock in about 30 seconds with <code>sinowisp write</code> — no Windows VM needed for a restore, only for the official updater. Diffing the two dumps showed the drift was 4 bytes in a settings block, not the firmware code itself.</div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>

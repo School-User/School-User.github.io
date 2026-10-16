@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UGREEN Mouse Driver — Siddh Patel</title>
+<meta name="description" content="Reverse-engineering an undocumented UGREEN wireless mouse protocol and building an open-source Linux settings app for it.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Reverse Engineering</span>
+      <h1>UGREEN Mouse Driver</h1>
+      <p class="dek">UGREEN's Linux support for this mouse is "plug it in and hope" — no speed curves, no button remaps. So I reverse-engineered the receiver's wireless protocol from scratch and built the missing settings app.</p>
+      <div class="tags">
+        <span>USB HID</span><span>Ghidra</span><span>Python</span><span>GTK4</span><span>Hyprland</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>No Linux driver, no docs</h2>
+      <p>UGREEN ships a Windows/macOS app ("KM Center") for configuring DPI, button remaps, and scroll behavior on their wireless mice — nothing for Linux. The receiver enumerates as USB <code>2b89:0043</code>. To build an equivalent on Linux, I had to work out its wire protocol with no documentation to go on.</p>
+
+      <h2>Finding the protocol</h2>
+      <p>I pulled apart UGREEN's own Mac agent binary with Ghidra to see how it talks to the receiver. It uses a vendor HID page (<code>0xFFB5</code>) on USB interface 1, with 8-byte output reports shaped like <code>B5 33 &lt;read/write&gt; &lt;cmd&gt; a0 a1 00 00</code>. That static analysis gave me the easy commands — read/set serial, battery level, DPI, factory reset — straight away.</p>
+      <p>But live traffic testing turned up a wrinkle: this receiver's USB ID shares its HID descriptor with UGREEN's M520 receiver, so I assumed it spoke the same protocol family. It doesn't. Sending real M520-style packets to it got silence. On wake, the receiver instead broadcasts an unprompted packet tagged <code>0x67</code> — a protocol UGREEN's own official software (on either OS) doesn't implement at all. For this receiver, UGREEN's app only does host-side remapping; it was never actually talking native protocol to the hardware.</p>
+
+      <h2>Building the Linux side</h2>
+      <p>With the known command set (DPI, battery, serial, button mask) mapped, I built <code>ugmouse.py</code>, a CLI for reading and writing those settings directly over the vendor HID interface, then a proper GTK4/libadwaita settings app on top of it. It writes a Hyprland Lua config (per-device speed, acceleration, scroll direction, left-handed mode, and button remaps via <code>hl.bind</code> device filters) so changes apply system-wide, not just inside one app.</p>
+      <p>Getting button remaps working on Hyprland 0.56 had its own sharp edges — a release-bind only matches inside whatever submap was active at <em>press</em> time, so a naive submap-based combo can strand you with every keybind dead until you cycle back. The fix was using always-present scroll binds toggled with <code>Keybind:set_enabled</code> instead of submap switching.</p>
+
+      <h2>Shipped</h2>
+      <p>Published as an open-source repo with the full protocol table in the README, so the next person with this receiver doesn't have to redo the Ghidra work.</p>
+
+      <div class="btns">
+        <a class="btn primary" href="https://github.com/School-User/ugreen-mouse-hyprland">View on GitHub ↗</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>

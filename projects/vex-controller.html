@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VEX Controller → Linux Gamepad — Siddh Patel</title>
+<meta name="description" content="Turning a VEX EXP robotics controller into a real system-wide Linux joystick, after working through USB protocol dead ends and vendor tooling gaps.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Reverse Engineering</span>
+      <h1>VEX Controller → Linux Gamepad</h1>
+      <p class="dek">I wanted to drive my <a href="https://school-user.github.io/robotics-simulation/" style="color:var(--accent)">Byte to Bite</a> browser sim with a real VEX controller. That turned into weeks of USB protocol archaeology before it finally worked — as a real, system-wide Linux joystick.</p>
+      <div class="tags">
+        <span>USB CDC-ACM</span><span>uinput</span><span>evdev</span><span>Python</span><span>Rust toolchain</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>It's not a gamepad — it's two serial ports</h2>
+      <p>First surprise: the VEX EXP Controller doesn't enumerate as a USB HID gamepad at all. It shows up as two CDC-ACM serial ports. That means the browser's Gamepad API can never see it directly, with or without touching the game's code — whatever I built would need a bridge translating serial data into something the browser or OS actually understands as a controller.</p>
+
+      <h2>Reverse-engineering VEX's framing</h2>
+      <p>Using VEX's open-source <code>vex-v5-serial</code> Rust crate as a reference, I got the "CDC2" packet framing working — header bytes, command byte, a variable-length size field, payload, and a CRC16-XMODEM checksum. One of the two serial ports actually answered to correctly-framed requests; the other stayed silent.</p>
+      <p>Then came a run of dead ends. The obvious "get controller state" command replied, but the payload jittered randomly with zero correlation to real stick or button input in a synchronized test where I held each input on command — it was a status/heartbeat field, not telemetry. A calibration-start command visibly changed the baseline pattern, proving the command did <em>something</em>, but still no usable joystick data. Several other diagnostic commands replied with nothing resembling live input at all.</p>
+      <p>The working theory that explained all of it: an unbound controller (no paired Brain) genuinely has no live joystick telemetry to give over USB. Its normal job is relaying raw RF frames to a Brain, not exposing local analog state to a PC on its own.</p>
+
+      <h2>Getting a Brain didn't immediately fix it</h2>
+      <p>A VEX EXP Brain became available, which should have unlocked the documented protocol path. Instead it hit a different wall: the hardware was too new for the existing open-source tooling. <strong>PROS-CLI</strong> didn't recognize the EXP Brain's product code at all — I patched its device tables and a status-schema length bug to get past that, which got device status and file-transfer <em>initiation</em> working (a real, documented ACK byte came back — solid proof the protocol/CRC work was correct). But program upload still failed: the EXP Brain's flash addressing doesn't match what that CLI assumes, and that's a different memory map, not a small patch.</p>
+      <p><strong>cargo-v5 / vex-v5-serial</strong>, the actively maintained Rust alternative, hit its own version-drift wall — the published crate didn't recognize a device-type byte this EXP firmware reports, and the unpublished git fix for that was built against a newer API that the CLI tool hadn't caught up to yet. Two independent open-source tools, two different gaps.</p>
+      <div class="callout">Turned out neither gap was mine to close: VEX's own developers have confirmed PROS was never given an EXP SDK — "V5 is the only product where partner developers were involved." Not a bug to patch around, a hard vendor limitation.</div>
+
+      <h2>The actual fix: VEX's own tooling</h2>
+      <p>The path that worked was VEX's official VS Code extension plus its <code>vexcom</code> CLI, running a small uploaded C++ program that prints live controller state over serial. A Python bridge reads that serial stream and does three things at once from a single read: feeds the browser game over WebSocket, <em>and</em> creates a genuine virtual joystick device via Linux's <code>evdev.UInput</code> — axes, face buttons, D-pad, all of it.</p>
+      <p>End result: the controller now works as a real joystick for <em>any</em> Linux app that reads standard gamepads — not just my own game.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>
