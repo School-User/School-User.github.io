@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Byte to Bite: BEST Robotics Simulator — Siddh Patel</title>
+<meta name="description" content="A 3D browser game recreating the 2026 BEST Robotics 'Byte to Bite' field, built from scratch with Three.js, real VEX controller support, and a WebSocket multiplayer mode.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Robotics · Featured</span>
+      <h1>Byte to Bite: BEST Robotics Simulator</h1>
+      <p class="dek">A 3D browser game that recreates the 2026 BEST Robotics "Byte to Bite" field, so my team can practice driving and strategy before the real robot even exists — playable with a keyboard, or with an actual VEX controller.</p>
+      <div class="tags">
+        <span>Three.js</span><span>JavaScript</span><span>VEX EXP</span><span>WebSocket</span><span>Supabase</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>Why build this</h2>
+      <p>Our BEST Robotics team's actual robot doesn't exist yet when the season's field design drops — but strategy and driving practice can't wait for hardware. So I built a browser-playable 3D recreation of the official 2026 "Byte to Bite" field: Three.js, no build step, plain ES modules loaded straight from a CDN. Pick up plates and cups and deliver them before the 2-minute match clock runs out, same rules as the real competition.</p>
+      <p>To get the field geometry right, I worked from VEX's own field CAD files and official drawings rather than guessing dimensions by eye — the walls, dividers, and scoring zones in the game match the real field's published measurements.</p>
+
+      <h2>The wall you could drive through</h2>
+      <p>Early on, the robot could drive straight through one of the interior divider walls — a collision bug that was unusually hard to pin down. The collision boxes themselves checked out: decoded directly from the field model's geometry data, with correct, sensible coordinates, and a passing automated test suite. But something was still letting the robot tunnel through in actual play.</p>
+      <p>Debugging a physics bug that only shows up to a human playing the game, not to an automated test, meant building better tools to <em>see</em> it happening: a live on-screen HUD showing the robot's exact position and collision state every frame, plus a headless Chromium harness running 120,000 randomized moves against the collision boxes to brute-force a reproduction. That harness never reproduced the divider bug — the 5 wall boxes were solid and correctly aligned.</p>
+      <p>The real bug turned out to be somewhere else entirely: the field model only had closing walls on two of its four outer edges. The robot wasn't tunneling through the divider — it was driving around it, off the field's open edges, and reappearing on the other side. Two mirrored boundary boxes fixed it. A classic case of the reported symptom and the actual defect living in different places.</p>
+
+      <h2>Driving it with a real controller</h2>
+      <p>Keyboard controls work, but I wanted the practice to feel like the real thing — so the game also supports a genuine VEX EXP controller as input. That meant reverse-engineering how the controller actually talks over USB (see the <a href="vex-controller.html" style="color:var(--accent)">separate write-up</a> on that), then building a small bridge: a C++ program on the VEX Brain streams live joystick/button state over serial, a Python bridge reads it and rebroadcasts over a local WebSocket, and the game connects to that socket and maps the controller state directly onto the same input handling the keyboard uses. Zero duplicated movement logic between the two input methods.</p>
+
+      <h2>Going multiplayer</h2>
+      <p>Single-player practice is useful, but real matches are two robots at once, so I built a multiplayer mode on top of the same codebase: a lobby with a short join window, a server-authoritative match clock so both players see the same timer, and synced robot state over WebSocket.</p>
+      <p>The hosting split was a deliberate call: the static game and its menu stay on GitHub Pages, which is free and requires nothing from players beyond opening a URL. The multiplayer server is a small Node process on a free-tier Render web service, reached over <code>wss://</code> from the page. I chose this over routing multiplayer traffic through my own home server, specifically to avoid putting public internet load on my home network — free-tier cold-start delay was an acceptable tradeoff for that.</p>
+      <p>Players never install anything or pick a server; they open the GitHub Pages link, and the menu's Multiplayer option handles connecting to Render behind the scenes.</p>
+
+      <h2>Knowing who's actually playing</h2>
+      <p>I added a lightweight, privacy-respecting usage counter backed by Supabase: an allow/reject banner on first visit, with counts (not identities) logged either way, and play sessions logged separately when someone actually starts a match. A public read-only view exposes aggregate stats — total visitors, plays, unique players, multiplayer plays — without exposing row-level data, so I can see whether the game is actually getting used without tracking anyone individually.</p>
+
+      <div class="btns">
+        <a class="btn primary" href="https://school-user.github.io/robotics-simulation/">▶ Play it</a>
+        <a class="btn" href="https://github.com/School-User/robotics-simulation">Source ↗</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>
