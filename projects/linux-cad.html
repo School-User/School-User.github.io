@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinuxCAD — Siddh Patel</title>
+<meta name="description" content="A Fusion-style parametric CAD app for Linux, built from scratch on OpenCascade and SolveSpace.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0" stop-color="#9ece6a"/>
+            <stop offset="1" stop-color="#7dcfff"/>
+          </linearGradient>
+        </defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Software</span>
+      <h1>LinuxCAD</h1>
+      <p class="dek">Fusion 360 didn't have a Linux version, so I built a parametric CAD app for Linux myself. You sketch, extrude, fillet and cut, and every step stays editable in a timeline.</p>
+      <div class="tags">
+        <span>Python</span><span>PySide6</span><span>OpenCascade</span><span>SolveSpace</span><span>STEP</span><span>AppImage</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <h2>The goal</h2>
+      <p>I wanted a Fusion-style workflow on Linux: sketch on a plane, extrude it, and go back to change a dimension without rebuilding everything. Nothing on Linux did that the way Fusion does. So LinuxCAD is a from-scratch app with the same layout: a 3D viewport with a ViewCube, a browser tree, and a feature timeline along the bottom.</p>
+
+      <h2>How it's built</h2>
+      <p>The geometry kernel is <strong>OpenCascade</strong>, the same family of kernel behind many open CAD tools, and it handles the solids, booleans, fillets, chamfers and shells. Sketches use <strong>SolveSpace</strong>'s constraint solver through <code>python-solvespace</code>, so the solver keeps every constraint satisfied while you drag points around. The UI is <strong>PySide6</strong>. The OpenCascade viewer embeds through X11, so on Wayland it runs under XWayland.</p>
+
+      <h2>Sketching</h2>
+      <p>Lines, rectangles, circles and 3-point arcs, with nine constraints (coincident, horizontal, vertical, parallel, perpendicular, equal, midpoint, concentric, fixed) and a tangent constraint. Dimensions are live. The status bar shows how many degrees of freedom are left, and a constraint that would over-constrain the sketch is refused instead of silently breaking the drawing.</p>
+
+      <h2>Solids, with a timeline</h2>
+      <p>Extrude picks closed regions automatically and can create a new body, join to what it touches, or cut. Revolve, fillet, chamfer and shell are there too. Every sketch and feature is a step in the timeline, and the model is rebuilt by replaying those steps. Double-click an early sketch and everything after it updates. A rollback marker lets you step back through history. If a step can no longer compute, for example because its profile was deleted, it turns red and tells you why.</p>
+
+      <p>Features remember the edges and faces they were applied to by a point on each one, so making a block taller keeps its fillets in the right place.</p>
+
+      <h2>Tracing a drawing</h2>
+      <p>You can drop in a reference image, calibrate it by clicking two points on a dimension you know, and then trace over it with sketches that carry exact dimensions. The image is saved inside the design file, so a <code>.lcad</code> file stays self-contained.</p>
+
+      <h2>Test case: a forklift fork</h2>
+      <p>To check that the app is accurate, I rebuilt a forklift fork from a Fusion drawing: 13" × 3.5", a 1.25" tab, 0.5" chamfers, an R2.11 notch and 0.25" thickness. The model matches the drawing, and a test checks it against a separate hand calculation of the same dimensions.</p>
+
+      <h2>Shipping it</h2>
+      <p>There's an AppImage build that bundles Python, Qt and OpenCascade into one file. It's compiled in a manylinux container, so it runs on any distro with glibc 2.34 or newer. You can open STEP files, save and open native <code>.lcad</code> designs, and export STEP and STL.</p>
+
+      <h2>Status</h2>
+      <p>The planned milestones are done: the viewport, sketches, extrude, the parametric timeline, solid features, native file save and open, the forklift rebuild, and the canvas tracing tool. The source is in a private repo for now.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>
