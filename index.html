@@ -7,82 +7,97 @@
 <meta name="description" content="Siddh Patel — student builder in Castle Rock, Colorado. Local AI, reverse engineering, cyber defense, robotics.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/site.css">
 <style>
   /* home-only styles; shared chrome lives in css/site.css */
   .skip { position: absolute; left: -999px; }
-  .skip:focus { left: 16px; top: 16px; background: var(--accent); color: var(--bg-deep); padding: 8px 12px; z-index: 10; }
-  .wrap { max-width: 960px; }
+  .skip:focus { left: 16px; top: 16px; background: var(--accent); color: var(--bg-deep); padding: 8px 12px; z-index: 10; border-radius: 8px; }
+  .wrap { max-width: 1080px; }
+  section { padding: 14px 0; scroll-margin-top: 80px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 28px; }
+  .label { font: 500 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
 
-  #hero { min-height: 78vh; display: flex; flex-direction: column; justify-content: center; }
-  #hero .wrap { width: 100%; }
-  .eyebrow { color: var(--muted); font-size: 14px; }
-  .eyebrow::before { content: "$ whoami  # "; color: var(--accent); }
-  h1 { font-size: clamp(44px, 8vw, 88px); line-height: 1; font-weight: 600; letter-spacing: -.035em; color: var(--text); margin: 18px 0 22px; }
-  h1 span { color: var(--accent); }
-  h1 br { display: none; }
-  h1 span::before { content: " "; }
-  .tagline { font-size: clamp(18px, 2.4vw, 21px); color: var(--text2); max-width: 640px; }
-  .btns { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+  /* hero bento */
+  .bento { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding-top: 22px; }
+  .intro { grid-column: span 3; grid-row: span 2; padding: clamp(28px, 5vw, 56px); display: flex; flex-direction: column; justify-content: flex-end; min-height: 440px;
+    background: radial-gradient(90% 90% at 100% 0%, rgba(182,243,106,.20), transparent 55%), radial-gradient(70% 80% at 0% 100%, rgba(106,215,255,.14), transparent 60%), var(--panel); }
+  h1 { font: 800 clamp(56px, 11vw, 132px)/.88 var(--display); letter-spacing: -.05em; color: var(--text); margin: 16px 0 24px; }
+  h1 span { background: linear-gradient(100deg, var(--accent), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tagline { font-size: clamp(17px, 2.2vw, 21px); max-width: 600px; }
+  .btns { margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .facts dl { display: grid; gap: 14px; margin-top: 16px; }
+  .facts dt { font: 12px var(--mono); color: var(--muted); }
+  .facts dd { color: var(--text); font-weight: 500; line-height: 1.35; }
+  a.cta { display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; background: var(--accent); border-color: var(--accent); color: var(--bg-deep); transition: transform .15s; min-height: 170px; }
+  a.cta:hover { transform: translateY(-3px) rotate(-1deg); }
+  a.cta .label { color: rgba(7,8,11,.65); }
+  a.cta b { font: 800 40px/1 var(--display); letter-spacing: -.04em; }
+  a.cta b::after { content: " ↗"; }
 
-  .ticker { border-block: 1px solid var(--line); background: var(--bg-deep); overflow: hidden; white-space: nowrap; padding: 12px 0; }
+  .ticker { overflow: hidden; white-space: nowrap; padding: 14px 0; margin: 14px 0; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
   .ticker div { display: inline-block; animation: scroll 40s linear infinite; }
-  .ticker span { margin: 0 22px; color: var(--muted); font: 13px "JetBrains Mono", monospace; }
-  .ticker span::before { content: "■ "; color: var(--accent); }
-  .ticker span:nth-child(3n+2)::before { color: var(--cyan); }
-  .ticker span:nth-child(3n)::before { color: var(--purple); }
+  .ticker span { margin: 0 20px; color: var(--text2); font: 13px var(--mono); }
+  .ticker span::before { content: "● "; color: var(--accent); }
+  .ticker span:nth-child(4n+2)::before { color: var(--cyan); }
+  .ticker span:nth-child(4n+3)::before { color: var(--pink); }
+  .ticker span:nth-child(4n)::before { color: var(--purple); }
   @keyframes scroll { to { transform: translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce) { .ticker div { animation: none; } html { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { .ticker div { animation: none; } html { scroll-behavior: auto; } * { transition: none !important; } }
 
-  section { padding: 88px 0; }
-  h2 { font-size: clamp(28px, 4.5vw, 40px); font-weight: 600; letter-spacing: -.025em; color: var(--text); line-height: 1.1; margin-bottom: 10px; }
-  h2::before { content: "# "; color: var(--accent); font-family: "JetBrains Mono", monospace; }
-  h2 + .sub { color: var(--muted); margin-bottom: 36px; }
+  h2 { font: 800 clamp(40px, 7vw, 76px)/.95 var(--display); letter-spacing: -.045em; color: var(--text); }
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px 24px; padding: 56px 6px 22px; }
+  .sec-head p { color: var(--muted); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-  .card { background: var(--panel); box-shadow: 0 0 0 1px rgba(255,255,255,.07); padding: 22px; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
-  .card:hover { box-shadow: 0 0 0 1px var(--accent); transform: translateY(-2px); }
-  .card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .card .cat { font-size: 12px; color: var(--cyan); }
-  .status { font-size: 11px; padding: 2px 8px; background: var(--panel2); }
-  .status.live { color: var(--accent); }
-  .status.building { color: var(--orange); }
-  .status.done { color: var(--purple); }
-  .card h3 { font-size: 19px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: -.01em; }
-  .card p { color: var(--muted); font-size: 15px; flex: 1; }
-  .card .stat { font-size: 12px; color: var(--text2); margin-top: 14px; flex: 0; }
-  .card a.link { margin-top: 14px; font: 13px "JetBrains Mono", monospace; color: var(--accent); text-decoration: none; }
-  .card a.link:hover { text-decoration: underline; }
+  /* work */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card, .featured { --c: var(--pink); border: 1px solid var(--line); border-radius: var(--r); transition: border-color .15s, transform .15s;
+    background: radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--c) 15%, transparent), transparent 62%), var(--panel); }
+  .card:hover, .featured:hover { border-color: var(--c); }
+  .card { padding: 24px; display: flex; flex-direction: column; }
+  .card:hover { transform: translateY(-4px); }
+  .card:nth-child(1), .card:nth-child(7), .card:nth-child(11) { grid-column: span 2; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .cat { font-size: 12px; color: var(--c); }
+  .status { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--panel2); color: var(--text2); }
+  .status::before { content: "● "; }
+  .status.live::before { color: var(--accent); }
+  .status.building::before { color: var(--orange); }
+  .status.done::before { color: var(--purple); }
+  .card h3 { font: 600 24px/1.1 var(--display); letter-spacing: -.025em; color: var(--text); margin-bottom: 10px; }
+  .card p { color: var(--text2); font-size: 15px; flex: 1; }
+  .card .stat, .featured .stat { font-size: 12px; color: var(--muted); margin-top: 16px; flex: 0; }
+  .card a.link { margin-top: 16px; font: 500 13px var(--mono); color: var(--c); text-decoration: none; }
+  .card a.link::after { content: ""; position: absolute; inset: 0; border-radius: var(--r); }
+  .card { position: relative; }
 
-  .featured { display: grid; grid-template-columns: 1.15fr 1fr; background: var(--panel); box-shadow: 0 0 0 1px rgba(255,255,255,.07); margin-bottom: 16px; transition: box-shadow .15s; }
-  .featured:hover { box-shadow: 0 0 0 1px var(--accent); }
+  .featured { display: grid; grid-template-columns: 1.2fr 1fr; overflow: hidden; margin-bottom: 14px; }
   .featured .shot { display: block; min-height: 100%; }
   .featured img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .featured .info { padding: 26px; display: flex; flex-direction: column; }
-  .featured .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .featured .cat { font-size: 12px; color: var(--cyan); }
-  .featured h3 { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -.015em; line-height: 1.2; margin-bottom: 10px; }
-  .featured p { color: var(--muted); font-size: 15px; }
-  .featured .stat { font-size: 12px; color: var(--text2); margin-top: 14px; }
-  .featured .btns { margin-top: 20px; }
-  @media (max-width: 760px) { .featured { grid-template-columns: 1fr; } }
+  .featured .info { padding: 30px; display: flex; flex-direction: column; justify-content: center; }
+  .featured h3 { font: 800 clamp(28px, 3.4vw, 40px)/1.02 var(--display); letter-spacing: -.035em; color: var(--text); margin-bottom: 12px; }
+  .featured p { font-size: 15px; }
 
-
-  .about { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; }
-  .about p { color: var(--text2); margin-bottom: 16px; }
+  /* about + contact */
+  .duo { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .about p { margin-top: 14px; font-size: 17px; }
+  .about .label + p { font: 600 clamp(22px, 2.8vw, 30px)/1.2 var(--display); letter-spacing: -.025em; color: var(--text); }
   .about em { color: var(--accent); font-style: normal; }
-  dl { display: grid; grid-template-columns: auto 1fr; background: var(--panel); box-shadow: 0 0 0 1px rgba(255,255,255,.07); padding: 8px 20px; align-self: start; font-size: 14px; }
-  dt, dd { padding: 12px 0; border-bottom: 1px solid var(--line); }
-  dt:nth-last-child(2), dd:last-child { border-bottom: 0; }
-  dt { color: var(--accent); padding-right: 24px; }
-  dd { color: var(--text); }
-  @media (max-width: 760px) { .about { grid-template-columns: 1fr; } nav a { margin-left: 14px; } }
+  .contact { display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+    background: radial-gradient(100% 100% at 100% 100%, rgba(185,156,255,.28), transparent 60%), radial-gradient(80% 80% at 0% 0%, rgba(255,122,182,.16), transparent 60%), var(--panel); }
+  .contact h3 { font: 800 clamp(34px, 4vw, 48px)/.98 var(--display); letter-spacing: -.04em; color: var(--text); margin-top: 12px; }
+  .email { font: 500 14px var(--mono); color: var(--text); word-break: break-all; }
+  .email:hover { color: var(--accent); }
 
-  #contact { text-align: center; background: var(--bg-deep); border-top: 1px solid var(--line); }
-  #contact h2::before { content: ""; }
-  .email { font-size: clamp(17px, 3.6vw, 30px); color: var(--accent); text-decoration: none; word-break: break-all; }
-  .email:hover { text-decoration: underline; }
+  @media (max-width: 900px) {
+    .bento { grid-template-columns: 1fr 1fr; } .intro { grid-column: span 2; grid-row: auto; min-height: 380px; }
+    .grid { grid-template-columns: 1fr 1fr; } .card:nth-child(n) { grid-column: auto; } .card:nth-child(1) { grid-column: span 2; }
+    .featured, .duo { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .bento, .grid { grid-template-columns: 1fr; } .intro, .card:nth-child(n) { grid-column: auto; }
+    .tile { padding: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -90,7 +105,7 @@
 
 <header>
   <div class="wrap">
-    <a class="logo mono" href="#hero" aria-label="Siddh Patel — home">
+    <a class="logo" href="#hero" aria-label="Siddh Patel — home">
       <svg viewBox="0 0 40 40" aria-hidden="true">
         <defs>
           <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
@@ -110,18 +125,29 @@
   </div>
 </header>
 
-<main>
-  <section id="hero">
-    <div class="wrap">
-      <p class="eyebrow mono">Castle Rock, Colorado</p>
-      <h1>Siddh<br><span>Patel</span></h1>
+<main class="wrap">
+  <section id="hero" class="bento">
+    <div class="tile intro">
+      <p class="label">Castle Rock, Colorado</p>
+      <h1>Siddh <span>Patel</span></h1>
       <p class="tagline">Student builder running AI on my own hardware, taking apart devices to see how they really work, and defending systems in CyberPatriot.</p>
       <div class="btns">
         <a class="btn primary" href="#work">See my work</a>
-        <a class="btn" href="resume.html">Resume</a>
         <a class="btn" href="https://github.com/School-User">GitHub ↗</a>
       </div>
     </div>
+    <div class="tile facts">
+      <p class="label">At a glance</p>
+      <dl>
+        <div><dt>Status</dt><dd>High school student</dd></div>
+        <div><dt>Focus</dt><dd>Local AI · Reverse engineering · Security</dd></div>
+        <div><dt>Compete</dt><dd>CyberPatriot · BEST Robotics</dd></div>
+      </dl>
+    </div>
+    <a class="tile cta" href="resume.html">
+      <span class="label">One page</span>
+      <b>Resume</b>
+    </a>
   </section>
 
   <div class="ticker" aria-hidden="true"><div>
@@ -130,10 +156,8 @@
   </div></div>
 
   <section id="work">
-    <div class="wrap">
-      <h2>Work</h2>
-      <p class="sub">Things I've built, broken, and figured out.</p>
-      <article class="featured">
+    <div class="sec-head"><h2>Work</h2><p>Things I've built, broken, and figured out.</p></div>
+    <article class="featured">
         <a class="shot" href="https://school-user.github.io/robotics-simulation/"><img src="images/byte-to-bite.jpg" alt="Byte to Bite: 3D robot on the BEST Robotics competition field" width="1280" height="600" loading="lazy"></a>
         <div class="info">
           <div class="top"><span class="cat mono">Robotics · Featured</span><span class="status live mono">Live</span></div>
@@ -147,9 +171,9 @@
           </div>
         </div>
       </article>
-      <div class="grid">
+    <div class="grid">
 
-        <article class="card">
+        <article class="card" style="--c:var(--accent)">
           <div class="top"><span class="cat mono">Local AI</span><span class="status live mono">Live</span></div>
           <h3>Dual-GPU AI Server</h3>
           <p>Home AI box that pools an NVIDIA RTX 3070 Ti and an AMD RX 6700 XT through Vulkan, so two GPUs from rival vendors run one large language model together.</p>
@@ -157,7 +181,7 @@
           <a class="link" href="projects/dual-gpu-server.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--accent)">
           <div class="top"><span class="cat mono">Local AI</span><span class="status done mono">Done</span></div>
           <h3>Cybersecurity LLM Fine-Tune</h3>
           <p>Fine-tuned Qwen2.5-7B with a QLoRA adapter on cybersecurity data, then ran it locally. Covers dataset prep, training, and serving on my own hardware.</p>
@@ -165,7 +189,7 @@
           <a class="link" href="projects/cybersec-finetune.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--accent)">
           <div class="top"><span class="cat mono">Local AI</span><span class="status live mono">Live</span></div>
           <h3>Self-Hosted AI Agents</h3>
           <p>24/7 AI agents running in VMs on my Proxmox server. They're reachable over Telegram, do scheduled tasks, and use a local model so nothing leaves my network.</p>
@@ -173,14 +197,14 @@
           <a class="link" href="projects/self-hosted-agents.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--cyan)">
           <div class="top"><span class="cat mono">Reverse Engineering</span><span class="status live mono">Live</span></div>
           <h3>UGREEN Mouse Driver</h3>
           <p>Decoded the undocumented wireless protocol of a UGREEN mouse receiver and built an open-source Linux settings app: speed, scrolling, and button remaps.</p>
           <a class="link" href="projects/ugreen-mouse.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--cyan)">
           <div class="top"><span class="cat mono">Reverse Engineering</span><span class="status done mono">Done</span></div>
           <h3>VEX Controller → Browser Gamepad</h3>
           <p>Worked out how a VEX EXP robotics controller talks to its Brain. It now runs in the browser with nothing to install: the page uploads its own program to the Brain.</p>
@@ -188,7 +212,7 @@
           <a class="link" href="projects/vex-controller.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--cyan)">
           <div class="top"><span class="cat mono">Reverse Engineering</span><span class="status building mono">Building</span></div>
           <h3>Keyboard Firmware Dump</h3>
           <p>Dumped and backed up the stock firmware of a SinoWealth-based mechanical keyboard and located its keymap table, which is the first step toward custom firmware.</p>
@@ -196,7 +220,7 @@
           <a class="link" href="projects/keyboard-firmware.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--orange)">
           <div class="top"><span class="cat mono">Cyber Defense</span><span class="status building mono">Competing</span></div>
           <h3>CyberPatriot</h3>
           <p>Competing in the national youth cyber defense competition: finding and fixing vulnerabilities on Windows and Linux systems against the clock.</p>
@@ -205,14 +229,14 @@
         </article>
 
 
-        <article class="card">
+        <article class="card" style="--c:var(--purple)">
           <div class="top"><span class="cat mono">Open Source</span><span class="status done mono">Submitted</span></div>
           <h3>Spotify AI DJ Patch</h3>
           <p>Added Spotify's AI DJ feature to an open-source Spotify client and submitted the change upstream to librespot.</p>
           <a class="link" href="projects/spotify-dj-patch.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--accent)">
           <div class="top"><span class="cat mono">Machine Learning</span><span class="status done mono">Done</span></div>
           <h3>Kaggle Playground S6E9</h3>
           <p>Predicted EV purchases with 20-fold bagged gradient-boosting models and a blended ensemble of out-of-fold predictions.</p>
@@ -220,7 +244,7 @@
           <a class="link" href="projects/kaggle-s6e9.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--cyan)">
           <div class="top"><span class="cat mono">Homelab</span><span class="status live mono">Live</span></div>
           <h3>Proxmox Homelab</h3>
           <p>A home server running a NAS, a Minecraft server, AI services, and test VMs, all connected privately over Tailscale.</p>
@@ -228,7 +252,7 @@
           <a class="link" href="projects/proxmox-homelab.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--orange)">
           <div class="top"><span class="cat mono">Hardware Hacking</span><span class="status done mono">Done</span></div>
           <h3>Linux on a Kindle Fire</h3>
           <p>Removed Fire OS from a Kindle Fire 7 and replaced it with postmarketOS, a real Linux desktop with touch and Wi-Fi working.</p>
@@ -236,7 +260,7 @@
           <a class="link" href="projects/kindle-fire.html">Read the write-up →</a>
         </article>
 
-        <article class="card">
+        <article class="card" style="--c:var(--purple)">
           <div class="top"><span class="cat mono">Software</span><span class="status done mono">Done</span></div>
           <h3>LinuxCAD</h3>
           <p>A Fusion-style parametric CAD app for Linux. Sketch, extrude, fillet and cut, and every step stays editable in a timeline.</p>
@@ -245,34 +269,30 @@
         </article>
 
       </div>
-    </div>
   </section>
 
   <section id="about">
-    <div class="wrap about">
-      <div>
-        <h2>About</h2>
+    <div class="sec-head"><h2>About</h2></div>
+    <div class="duo">
+      <div class="tile about">
+        <p class="label">Who</p>
         <p>I'm a high school student in Colorado who learns by building. If I own a device, I've probably opened it, flashed it, or written software for it.</p>
         <p>Most of my projects start with a question: <em>how does this actually work?</em> Answering it usually means running models on my own GPUs, reading USB packets, or breaking and then securing a system.</p>
         <div class="tags">
           <span>AI / LLMs</span><span>Reverse Engineering</span><span>Cybersecurity</span><span>Robotics</span><span>Linux</span><span>Python</span><span>JavaScript</span>
         </div>
       </div>
-      <dl class="mono">
-        <dt>Location</dt><dd>Castle Rock, CO</dd>
-        <dt>Status</dt><dd>High school student</dd>
-        <dt>Focus</dt><dd>Local AI · RE · Security</dd>
-        <dt>Compete</dt><dd>CyberPatriot · BEST Robotics</dd>
-        <dt>Resume</dt><dd><a href="resume.html">View</a> · <a href="Siddh_Patel_Resume.pdf">PDF</a></dd>
-      </dl>
-    </div>
-  </section>
-
-  <section id="contact">
-    <div class="wrap">
-      <h2>Let's talk</h2>
-      <p class="sub" style="margin-bottom:24px">Questions, collabs, or opportunities. My inbox is open.</p>
-      <a class="email mono" href="mailto:siddh.s.patel2008@gmail.com">siddh.s.patel2008@gmail.com</a>
+      <div class="tile contact" id="contact">
+        <div>
+          <p class="label">Contact</p>
+          <h3>Let's talk.</h3>
+          <p style="margin-top:12px">Questions, collabs, or opportunities. My inbox is open.</p>
+        </div>
+        <div>
+          <a class="email" href="mailto:siddh.s.patel2008@gmail.com">siddh.s.patel2008@gmail.com</a>
+          <div class="btns" style="margin-top:16px"><a class="btn primary" href="resume.html">Resume</a><a class="btn" href="Siddh_Patel_Resume.pdf">PDF ↓</a></div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
