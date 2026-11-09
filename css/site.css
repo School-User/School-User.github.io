@@ -14,7 +14,7 @@ html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text2); font: 16px/1.65 "Geist", system-ui, sans-serif; }
 a { color: inherit; }
 .mono { font-family: var(--mono); }
-.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
 
 header { position: sticky; top: 12px; z-index: 5; padding: 0 16px; margin-top: 12px; }
 header .wrap { max-width: 1048px; display: flex; justify-content: space-between; align-items: center; height: 54px; padding: 0 22px; background: rgba(20,22,29,.82); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 999px; }

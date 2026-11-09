@@ -59,6 +59,12 @@
   .card { padding: 24px; display: flex; flex-direction: column; }
   .card:hover { transform: translateY(-4px); }
   .card:nth-child(1), .card:nth-child(7), .card:nth-child(11) { grid-column: span 2; }
+  @media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(4, 1fr); }
+    .card:nth-child(n) { grid-column: auto; }
+    .card:nth-child(1), .card:nth-child(5), .card:nth-child(9), .card:nth-child(10) { grid-column: span 2; }
+    .featured { grid-template-columns: 1.6fr 1fr; }
+  }
   .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
   .cat { font-size: 12px; color: var(--c); }
   .status { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--panel2); color: var(--text2); }
