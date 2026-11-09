@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resume — Siddh Patel</title>
+<meta name="description" content="Resume of Siddh Patel: Linux, hardware repair, homelab infrastructure, local AI, and cyber defense.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<style>
+  .cv { padding: 56px 0 88px; }
+  .cv h1 { font-size: clamp(34px, 6vw, 52px); font-weight: 600; letter-spacing: -.03em; color: var(--text); line-height: 1.05; }
+  .cv .contact { margin-top: 12px; font: 13px "JetBrains Mono", monospace; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .cv .contact a { text-decoration: none; }
+  .cv .contact a:hover, .cv h3 a:hover { color: var(--accent); }
+  .cv .btns { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .cv h2 { font-size: 15px; font-weight: 600; color: var(--accent); font-family: "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line-strong); }
+  .cv .item { margin-bottom: 20px; break-inside: avoid; }
+  .cv .item-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 2px 16px; }
+  .cv h3 { font-size: 17px; font-weight: 600; color: var(--text); }
+  .cv h3 a { text-decoration: none; }
+  .cv h3 small { font-weight: 400; font-size: 14.5px; color: var(--text2); }
+  .cv .when { font: 13px "JetBrains Mono", monospace; color: var(--muted); white-space: nowrap; }
+  .cv ul { margin: 6px 0 0 20px; }
+  .cv li { margin-bottom: 4px; }
+  .cv ul.plain { list-style: none; margin-left: 0; padding-left: 0; }
+  .cv b { color: var(--text); font-weight: 600; }
+
+  @media print {
+    @page { margin: 9mm 12mm; }
+    :root { --text: #000; --text2: #1a1a1a; --muted: #444; --accent: #000; --line-strong: #999; }
+    body { background: #fff; font-size: 9pt; line-height: 1.28; }
+    header, footer, .btns { display: none !important; }
+    .wrap { max-width: none; padding: 0; }
+    .cv { padding: 0; }
+    .cv h1 { font-size: 20pt; }
+    .cv h2 { font-size: 9pt; margin: 10px 0 5px; padding-bottom: 3px; }
+    .cv h3 { font-size: 10pt; }
+    .cv h3 small { font-size: 9.2pt; }
+    .cv .contact, .cv .when { font-size: 8.5pt; }
+    .cv .item { margin-bottom: 5px; }
+    .cv ul { margin-top: 1px; padding-left: 14px; }
+    .cv li { margin-bottom: 1px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo mono" href="index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#9ece6a"/><stop offset="1" stop-color="#7dcfff"/></linearGradient></defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav><a href="index.html#work">Work</a><a href="index.html#about">About</a><a href="resume.html">Resume</a><a href="index.html#contact">Contact</a></nav>
+  </div>
+</header>
+
+<main class="cv">
+  <div class="wrap">
+    <h1>Siddh Patel</h1>
+    <p class="contact">
+      <span>Castle Rock, CO</span>
+      <a href="mailto:siddh.s.patel2008@gmail.com">siddh.s.patel2008@gmail.com</a>
+      <a href="https://school-user.github.io">school-user.github.io</a>
+      <a href="https://github.com/School-User">github.com/School-User</a>
+    </p>
+    <div class="btns">
+      <a class="btn primary" href="Siddh_Patel_Resume.pdf" download>Download PDF</a>
+      <a class="btn" href="index.html#work">See the projects</a>
+    </div>
+
+    <h2>Summary</h2>
+    <p>High school student and hands-on technologist who runs Linux daily, repairs laptops at the component level, and maintains a self-hosted Proxmox homelab. Builds and ships software projects in local AI, reverse engineering, and robotics. LPI Linux Essentials certified, CompTIA A+ in progress, with customer-facing retail experience.</p>
+
+    <h2>Skills</h2>
+    <ul class="plain">
+      <li><b>Systems:</b> Linux (Arch, Debian, Ubuntu), Windows, Proxmox virtualization (VMs, LXC, PCIe passthrough), Tailscale, Bash, Git</li>
+      <li><b>Programming:</b> Python, JavaScript (Three.js), shell scripting</li>
+      <li><b>Hardware &amp; repair:</b> component-level motherboard repair, power-delivery fault isolation, soldering, schematic tracing, multimeter diagnostics, NVMe data recovery, system assembly and bench testing</li>
+      <li><b>AI / ML:</b> local LLM serving (Ollama, llama.cpp), QLoRA fine-tuning, gradient-boosted models and ensembling</li>
+      <li><b>Security:</b> Windows and Linux hardening, Linux account security (PAM), USB protocol and firmware reverse engineering</li>
+      <li><b>Customer &amp; retail:</b> POS and cash handling, end-of-day reconciliation, inventory and returns, clear customer communication</li>
+    </ul>
+
+    <h2>Projects</h2>
+
+    <div class="item">
+      <div class="item-head"><h3><a href="projects/byte-to-bite.html">Byte to Bite: BEST Robotics Simulator</a></h3><span class="when">2026</span></div>
+      <ul>
+        <li>Built a 3D browser game recreating the 2026 BEST Robotics field so the team can practice driving and strategy before the real robot exists.</li>
+        <li>Added online multiplayer hosted on Google Cloud Run and support for driving with a real VEX EXP controller. Three.js, JavaScript.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><h3><a href="projects/proxmox-homelab.html">Proxmox Homelab</a> <small>and <a href="projects/dual-gpu-server.html">Dual-GPU AI Server</a></small></h3><span class="when">2023–Present</span></div>
+      <ul>
+        <li>Built and maintain a bare-metal Proxmox server running a NAS, AI services, 24/7 AI agents, and test VMs, connected privately over Tailscale.</li>
+        <li>Pooled an NVIDIA RTX 3070 Ti and an AMD RX 6700 XT through Vulkan to run 26–30B-parameter language models at 34–51 tokens/sec.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><h3>Component-Level Laptop Repair</h3><span class="when">2024–Present</span></div>
+      <ul>
+        <li>Diagnosed a dead Dell Inspiron motherboard (LA-L241P) to the component level: traced power-delivery schematics to isolate a failed charger IC and restore the board to POST.</li>
+        <li>Recovered data directly from the NVMe drive after full board fault isolation.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><h3>Reverse Engineering <small>(<a href="projects/ugreen-mouse.html">UGREEN mouse</a>, <a href="projects/vex-controller.html">VEX controller</a>)</small></h3><span class="when">2026</span></div>
+      <ul>
+        <li>Decoded the undocumented wireless protocol of a UGREEN mouse receiver and released an open-source Linux settings app for speed, scrolling, and button remaps.</li>
+        <li>Worked out how a VEX EXP controller talks to its Brain and exposed it as a system-wide Linux joystick with uinput and Python.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><h3><a href="projects/cybersec-finetune.html">Cybersecurity LLM Fine-Tune</a></h3><span class="when">2026</span></div>
+      <ul>
+        <li>Fine-tuned Qwen2.5-7B with a QLoRA adapter on cybersecurity data and served it locally: dataset prep, training, and deployment on my own hardware.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><h3><a href="projects/cyberpatriot.html">CyberPatriot</a> <small>National Youth Cyber Defense Competition</small></h3><span class="when">2023–Present</span></div>
+      <ul>
+        <li>Find and fix vulnerabilities on Windows and Linux systems against the clock, without breaking required services.</li>
+        <li>Wrote a read-only Bash diagnostic utility for automated system auditing and documented Linux account-security (PAM) hardening.</li>
+      </ul>
+    </div>
+
+    <h2>Work Experience</h2>
+    <div class="item">
+      <div class="item-head"><h3>Customer Service Associate <small>· Walgreens</small></h3><span class="when">May 2026–Present</span></div>
+      <ul>
+        <li>Operate the point-of-sale register and handle end-of-day reconciliation accurately in a high-volume store.</li>
+        <li>Help customers at the register and on the floor, including device and technical questions, and resolve issues on the spot.</li>
+        <li>Coordinate inventory stocking and returns; consistently dependable and on time.</li>
+      </ul>
+    </div>
+
+    <h2>Certifications &amp; Education</h2>
+    <ul>
+      <li><b>LPI Linux Essentials</b>, certified</li>
+      <li><b>CompTIA A+</b> (Core 1 &amp; Core 2), in progress, target Dec 2026</li>
+      <li>CompTIA Network+ and AWS Certified Cloud Practitioner, in progress</li>
+      <li><b>Rock Canyon High School</b>, expected graduation May 2027</li>
+      <li>DCSD Legacy Campus, Secure Network Technologies pathway, currently enrolled</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Siddh Patel</span>
+    <a href="https://github.com/School-User">github.com/School-User</a>
+  </div>
+</footer>
+</body>
+</html>
