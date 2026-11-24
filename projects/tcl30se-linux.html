@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debian on a TCL 30 SE — Siddh Patel</title>
+<meta name="description" content="Running Debian 13 on mainline Linux on a budget MediaTek phone: PowerVR GPU through libhybris, hardware video decode, a USB dock with hot-swap, and a cyberdeck desktop.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='40'%20y2='40'%3E%3Cstop%20offset='0'%20stop-color='%239ece6a'/%3E%3Cstop%20offset='1'%20stop-color='%237dcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%2313141c'/%3E%3Cpath%20d='M29%2010C19%2010%2010%2012.5%2010%2017.5C10%2023%2030%2020.5%2030%2026C30%2031%2020%2032%2011%2029'%20fill='none'%20stroke='url(%23g)'%20stroke-width='4.5'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="../index.html#hero" aria-label="Siddh Patel — home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#9ece6a"/><stop offset="1" stop-color="#7dcfff"/></linearGradient></defs>
+        <path d="M29 10C19 10 10 12.5 10 17.5C10 23 30 20.5 30 26C30 31 20 32 11 29" fill="none" stroke="url(#logo-grad)" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <nav><a href="../index.html#work">Work</a><a href="../index.html#about">About</a><a href="../resume.html">Resume</a><a href="../index.html#contact">Contact</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="post-head">
+    <div class="wrap">
+      <a class="back mono" href="../index.html#work">← Back to work</a>
+      <span class="cat">Hardware Hacking</span>
+      <h1>Debian on a TCL 30 SE</h1>
+      <p class="dek">A budget Android phone with a MediaTek chip, now running Debian 13 on a mainline Linux kernel, with its PowerVR GPU working through the vendor driver, hardware video decoding, a USB dock that hot-swaps and charges, and a lightweight "cyberdeck" desktop.</p>
+      <div class="tags">
+        <span>Mainline Linux 7.1</span><span>Kernel Drivers</span><span>libhybris / PowerVR</span><span>Wayland</span><span>ARM / MediaTek</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post">
+    <div class="wrap">
+
+      <img src="../images/tcl30se-fastfetch.jpg" alt="The phone's cyberdeck desktop running fastfetch: Debian 13, Linux 7.1, PowerVR Rogue GE8320 via libhybris" width="1600" height="720" loading="lazy">
+
+      <h2>The goal</h2>
+      <p>The TCL 30 SE is a cheap phone built on the MediaTek MT6765 (Helio P35) with 4 GB of RAM. Phones like this usually die with whatever Android they shipped with. I wanted a real Linux computer instead: a normal Debian install, a desktop I could dock to a keyboard, and enough hardware working that it's actually usable, as the core of a 3D-printed cyberdeck.</p>
+
+      <h2>Booting a mainline kernel</h2>
+      <p>The phone runs Debian 13 (trixie) on Linux 7.1, starting from a community MT6765 kernel fork and adding the TCL-specific pieces: the device tree for this board, the FocalTech touchscreen, audio, power keys, charging, and a port of MediaTek's Wi-Fi stack. It boots from the phone's second slot with the root filesystem on the old user-data partition, so the original Android slot stays intact as a fallback.</p>
+
+      <h2>The GPU: Android driver, Linux desktop</h2>
+      <p>The PowerVR Rogue GE8320 has no open-source driver that supports it. The working route is <strong>libhybris</strong>: the phone's own Android GPU driver is loaded inside a normal Linux process. That gets you a GPU, but not a picture on a Linux desktop, so I wrote a small EGL "platform" plugin that takes each frame the GPU finishes and hands it to the Wayland compositor. Firefox now renders pages on the GPU with WebRender.</p>
+      <div class="callout">The hardest bug was a video stutter that looked like a performance problem and wasn't. Frames reached the compositor in a pixel format its fast path didn't handle, so rotating every frame for landscape took about 100 ms. Swapping red and blue during the copy, so the frames arrive in the standard format, took 720p60 video from stuttering to a measured 59.9 frames per second.</div>
+
+      <h2>Hardware video decoding</h2>
+      <p>The chip has a dedicated H.264 decoder, but on Android it's only reachable through MediaTek's libraries. A small kernel module exposes it on Linux, and a pipeline feeds the compressed video in and raw frames out to mpv, with the audio decoded alongside. YouTube links clicked in Firefox hand off to it automatically. Measured: 1080p at 30 fps and 720p at 60 fps, smooth.</p>
+
+      <h2>Docking: USB host, charging, and hot-swap</h2>
+      <p>For a cyberdeck the phone has to act as a USB host for a keyboard and mouse, and ideally charge at the same time. Two problems got in the way. The phone's USB controller jams if you switch its role back and forth, so the role is now set once at boot from a saved setting (with a small menu to change it). And the USB-C chip's driver kept flipping the port back to "device" mode every time a dock was unplugged, which is what made hot-swapping impossible. A small kernel change lets userspace hold the role, and now docks can be unplugged and replugged while the phone runs, charging included through a dock's PD port.</p>
+
+      <h2>The cyberdeck desktop</h2>
+      <img src="../images/tcl30se-lock.jpg" alt="Lock screen with a large clock over a dark green forest wallpaper" width="1600" height="720" loading="lazy">
+      <p>The desktop is labwc (a light Wayland compositor) with waybar, a keyboard launcher, a terminal, notifications, a lock screen, a battery estimate (the phone has no fuel gauge, so it's read from the cell voltage), and a power-button menu. It idles at about 440 MiB of RAM. An XFCE session and my own touch-first shell, PocketShell, are there too.</p>
+
+      <h2>What's not done</h2>
+      <p>The compositor still draws in software, so the acceleration is partial. Real sleep works and the screen now survives it, but the power button can't wake the phone yet and USB host doesn't come back afterwards. Bluetooth, the cellular modem and the camera aren't working, and HDMI over USB-C isn't possible on this hardware.</p>
+
+      <h2>How it was built</h2>
+      <p>I built this with Claude Code as an AI pair-programmer. It worked over SSH on the phone and my laptop, writing and debugging the kernel and driver changes, the EGL plugin, and the desktop setup. I handled the hardware: unlocking and flashing, testing every change on the real phone, plugging docks in and out, and deciding what to build next. The code is open source: <a href="https://github.com/School-User/TCL30SE-Linux">the project</a>, <a href="https://github.com/School-User/TCL30SE-Linux-Kernel">the kernel</a>, and <a href="https://github.com/School-User/PocketShell">PocketShell</a>.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><span>© 2026 Siddh Patel</span><a href="https://github.com/School-User">github.com/School-User</a></div>
+</footer>
+</body>
+</html>
